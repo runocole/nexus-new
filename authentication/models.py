@@ -1,9 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import (AbstractBaseUser, PermissionsMixin)
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 import uuid
 from .manager import UserManager
 from phonenumber_field.modelfields import PhoneNumberField
-from django.core.validators import EmailValidator
+from django.core.validators import EmailValidator, RegexValidator
 import secrets
 from django.utils import timezone
 from datetime import timedelta
@@ -56,11 +56,9 @@ class PasswordResetToken(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.token:
-            self.token = secrets.token_hex(32)
-
+            self.token = secrets.token_hex(32)  # 64 chars hex
         if not self.expires_at:
             self.expires_at = timezone.now() + timedelta(minutes=30)
-
         super().save(*args, **kwargs)
 
     def is_valid(self):
@@ -79,7 +77,15 @@ class EmailVerificationCode(models.Model):
     """Store 6-digit verification codes for onboarding"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='email_verification_codes')
-    code = models.CharField(max_length=6)
+    code = models.CharField(
+        max_length=6,
+        validators=[
+            RegexValidator(
+                regex=r'^\d{6}$',
+                message="Verification code must be exactly 6 digits"
+            )
+        ]
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
     used = models.BooleanField(default=False)
@@ -90,6 +96,7 @@ class EmailVerificationCode(models.Model):
         super().save(*args, **kwargs)
 
     def is_valid(self):
+        """Check if the code is valid (not expired and not used)"""
         return not self.used and self.expires_at > timezone.now()
 
     class Meta:
