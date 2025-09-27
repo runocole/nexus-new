@@ -22,6 +22,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             'invalid': 'Enter a valid phone number (e.g. +1234567890)'
         }
     )
+    profile_picture = models.ImageField(
+        upload_to='profile_pictures/', blank=True, null=True
+    )
+
     is_active = models.BooleanField(default=False)  # inactive until email verified
     is_admin = models.BooleanField(default=False)
     last_seen = models.DateTimeField(null=True, blank=True)

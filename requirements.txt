@@ -22,7 +22,7 @@ inflection==0.5.1
 packaging==24.2
 phonenumberslite==8.13.55
 pillow==11.1.0
-PyJWT==2.10.1D
+PyJWT==2.10.1
 python-dotenv==1.0.1
 pytz==2025.1
 PyYAML==6.0.2
@@ -39,3 +39,4 @@ websockets==15.0
 whitenoise==6.9.0
 psycopg2-binary>=2.9.9,<2.10.0
 dj-database-url==2.1.0
+geopy==2.4.1

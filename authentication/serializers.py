@@ -71,7 +71,7 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False, validators=[validate_password])
     phone_number = PhoneNumberField(required=True)
     email = serializers.EmailField(required=True)
-
+    profile_picture = serializers.ImageField(required=True)
     class Meta:
         model = User
         fields = [

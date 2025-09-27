@@ -17,7 +17,7 @@ from authentication.serializers import (
     EmailVerificationConfirmSerializer,
 )
 from rest_framework_simplejwt.views import TokenObtainPairView
-
+from rest_framework.parsers import MultiPartParser, FormParser
 User = get_user_model()
 
 
@@ -32,13 +32,13 @@ class EmailUsernameTokenObtainPairView(TokenObtainPairView):
 class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
+    parser_classes = [MultiPartParser, FormParser]  # 🔥 allow image upload
 
     def perform_create(self, serializer):
         user = serializer.save(is_active=False)  # Require email verification
         password = serializer.validated_data.get('password')
         user.set_password(password)
         user.save()
-        # create verification code
         EmailVerificationCode.objects.create(user=user)
 
     def create(self, request, *args, **kwargs):
@@ -52,6 +52,7 @@ class CreateUserView(generics.CreateAPIView):
         return Response({
             "message": "User created successfully. Please verify your email to activate your account."
         }, status=status.HTTP_201_CREATED)
+
 
 
 class UserProfileView(APIView):
