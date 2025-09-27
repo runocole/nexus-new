@@ -16,13 +16,13 @@ class UserManager(BaseUserManager):
             phone_number=phone_number,
             **extra_fields
         )
-        
         user.set_password(password)
-        user.is_active = True
-        user.save(using=self.db)
+        user.is_active = False  # keep False until email verification
+        user.save(using=self._db)
         return user
-        
+
     def create_superuser(self, username, email, phone_number, password=None, **extra_fields):
+        extra_fields.setdefault("is_admin", True)
         user = self.create_user(
             username=username,
             email=email,
@@ -30,6 +30,6 @@ class UserManager(BaseUserManager):
             password=password,
             **extra_fields
         )
-        user.is_admin = True
-        user.save(using=self.db)
+        user.is_active = True  # superuser should always be active
+        user.save(using=self._db)
         return user
